@@ -2,98 +2,213 @@
 <html lang="pl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#d4001a">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#c8102e">
 <title>Rossmann Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root { --red:#d4001a; --bg:#f5f3f1; --card:#fff; --ink:#1d1d1f; --mute:#77736f; --ok:#0a8a4a; --line:#e7e3df; }
-  * { box-sizing:border-box; }
-  body { margin:0; font:15px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--ink); padding-bottom:env(safe-area-inset-bottom); }
-  header { background:var(--red); color:#fff; padding:calc(14px + env(safe-area-inset-top)) 16px 14px; display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:5; }
-  header h1 { font-size:18px; margin:0; flex:1; letter-spacing:.2px; }
-  header small { opacity:.85; font-size:12px; }
-  header button { background:rgba(255,255,255,.18); color:#fff; border:0; border-radius:8px; padding:6px 10px; font-size:14px; }
-  nav { display:flex; background:#fff; border-bottom:1px solid var(--line); position:sticky; top:calc(52px + env(safe-area-inset-top)); z-index:4; }
-  nav button { flex:1; border:0; background:none; padding:12px 0; font-size:15px; color:var(--mute); border-bottom:3px solid transparent; }
-  nav button.on { color:var(--red); border-color:var(--red); font-weight:600; }
-  main { padding:12px; max-width:720px; margin:0 auto; }
-  .row { display:flex; gap:8px; margin-bottom:12px; }
-  input { flex:1; font-size:16px; padding:11px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; min-width:0; }
-  .btn { border:0; border-radius:10px; padding:0 14px; font-size:15px; font-weight:600; background:var(--red); color:#fff; white-space:nowrap; }
-  .btn.ghost { background:#fff; color:var(--red); border:1px solid var(--line); }
-  .card { background:var(--card); border-radius:12px; padding:10px; display:flex; gap:10px; margin-bottom:8px; align-items:center; box-shadow:0 1px 0 var(--line); }
-  .card img { width:64px; height:64px; object-fit:contain; flex:none; background:#fff; }
-  .card .t { flex:1; min-width:0; }
-  .card .n { font-weight:600; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-  .card .m { color:var(--mute); font-size:13px; margin-top:2px; }
-  .price { color:var(--red); font-weight:700; }
-  .old { color:var(--mute); text-decoration:line-through; font-size:13px; margin-left:4px; }
-  .tag { display:inline-block; font-size:12px; font-weight:600; padding:2px 7px; border-radius:6px; margin-top:4px; }
-  .tag.sale { background:#e6f6ee; color:var(--ok); }
-  .tag.none { background:#f0eeec; color:var(--mute); }
-  .tag.end { background:#fff1e0; color:#b45a00; }
-  .icon { border:0; background:none; font-size:20px; padding:6px; color:var(--mute); flex:none; }
-  .icon.add { color:var(--red); font-size:26px; }
-  .empty { text-align:center; color:var(--mute); padding:30px 10px; }
-  .hint { color:var(--mute); font-size:13px; margin:-4px 2px 12px; }
-  #settings { background:#fff; border-radius:12px; padding:14px; margin-bottom:12px; display:none; }
-  #settings label { display:block; font-size:13px; color:var(--mute); margin:8px 0 4px; }
-  #settings input { width:100%; }
-  #toast { position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom)); transform:translateX(-50%); background:#1d1d1f; color:#fff; padding:10px 16px; border-radius:10px; font-size:14px; opacity:0; transition:opacity .2s; pointer-events:none; max-width:90vw; }
-  #toast.show { opacity:1; }
-  a { color:inherit; text-decoration:none; }
+  :root {
+    --shelf: #e9ebee;
+    --tag: #ffffff;
+    --red: #c8102e;
+    --red-deep: #9e0c23;
+    --yellow: #ffde3b;
+    --ink: #24191d;
+    --mute: #6f6a6c;
+    --line: #d9dce0;
+    --cond: "Barlow Condensed", "Arial Narrow", sans-serif;
+    --body: "Barlow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--shelf); color: var(--ink); font: 400 16px/1.45 var(--body); }
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+  img { display: block; }
+
+  /* ---------- top band ---------- */
+  .band { background: var(--red); color: #fff; }
+  .band-inner { max-width: 1240px; margin: 0 auto; padding: 22px 32px 30px; display: grid; grid-template-columns: 1fr auto; gap: 8px 24px; align-items: start; }
+  .brand { font: 700 18px/1 var(--cond); letter-spacing: .02em; display: flex; align-items: center; gap: 10px; }
+  .brand svg { width: 26px; height: 26px; }
+  .top-actions { display: flex; gap: 8px; }
+  .ghost { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28); color: #fff; border-radius: 6px; padding: 7px 12px; font-size: 14px; font-weight: 500; }
+  .ghost:hover { background: rgba(255,255,255,.24); }
+  .headline { grid-column: 1 / -1; margin: 26px 0 0; font: 700 clamp(34px, 4.4vw, 56px)/0.98 var(--cond); letter-spacing: -.005em; max-width: 22ch; }
+  .sub { grid-column: 1 / -1; margin: 10px 0 0; font-size: 15px; color: rgba(255,255,255,.82); }
+
+  /* ---------- add bar (sits across the band edge) ---------- */
+  .adder { max-width: 1240px; margin: -26px auto 0; padding: 0 32px; position: relative; }
+  .adder form { display: flex; background: var(--tag); border-radius: 10px; box-shadow: 0 10px 30px -12px rgba(60, 10, 20, .35); overflow: hidden; }
+  .adder input { flex: 1; border: 0; padding: 17px 20px; font-size: 17px; min-width: 0; background: transparent; }
+  .adder input:focus { outline: none; }
+  .adder form:focus-within { box-shadow: 0 0 0 3px var(--ink), 0 10px 30px -12px rgba(60, 10, 20, .35); }
+  .adder button { border: 0; background: var(--ink); color: #fff; padding: 0 26px; font: 700 18px/1 var(--cond); letter-spacing: .03em; }
+  .adder button:hover { background: #000; }
+  .adder p { margin: 8px 4px 0; font-size: 13px; color: var(--mute); }
+
+  /* ---------- layout ---------- */
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 28px 32px 60px; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 36px; align-items: start; }
+  h2 { font: 700 24px/1.1 var(--cond); margin: 0 0 14px; display: flex; align-items: baseline; gap: 10px; }
+  h2 small { font: 500 15px var(--body); color: var(--mute); }
+
+  /* ---------- price tag ---------- */
+  .tags { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 16px; }
+  .tag {
+    position: relative; background: var(--tag); border-radius: 4px 14px 4px 4px;
+    display: flex; flex-direction: column; min-height: 100%;
+    box-shadow: 0 1px 0 var(--line), 0 6px 14px -10px rgba(36, 25, 29, .4);
+  }
+  .tag::before { /* punched hole */
+    content: ""; position: absolute; top: 12px; right: 12px; width: 11px; height: 11px; border-radius: 50%;
+    background: var(--shelf); box-shadow: inset 0 1px 2px rgba(0,0,0,.25);
+  }
+  .tag-top { display: flex; gap: 12px; padding: 14px 30px 0 14px; }
+  .tag-img { width: 72px; height: 72px; object-fit: contain; flex: none; }
+  .tag-name { font-size: 14px; line-height: 1.3; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .tag-name b { font-weight: 600; }
+  .tag-unit { font-size: 12px; color: var(--mute); margin-top: 2px; }
+  .tag-price { padding: 10px 14px 12px; margin-top: auto; display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+  .now { font: 800 44px/0.85 var(--cond); color: var(--red); letter-spacing: -.01em; }
+  .now sup { font-size: .45em; vertical-align: top; position: relative; top: .12em; margin-left: 1px; }
+  .now .cur { font-size: .42em; margin-left: 3px; letter-spacing: 0; }
+  .was { font-size: 13px; color: var(--mute); line-height: 1.2; }
+  .was s { font-weight: 500; }
+  .off { display: inline-block; background: var(--red); color: #fff; font: 700 14px/1 var(--cond); padding: 4px 6px 3px; border-radius: 3px; margin-top: 3px; }
+  .deal { font: 600 18px/1.05 var(--cond); color: var(--red); }
+  .strip { padding: 7px 14px; font-size: 13px; border-top: 1px dashed var(--line); color: var(--mute); display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .tag.ending .strip { background: var(--yellow); color: var(--ink); border-top-color: transparent; font-weight: 600; border-radius: 0 0 4px 4px; }
+  .x { border: 0; background: none; padding: 2px 4px; color: var(--mute); font-size: 13px; border-radius: 4px; }
+  .x:hover { color: var(--red); background: rgba(200, 16, 46, .08); }
+  .tag a.cover { position: absolute; inset: 0; border-radius: inherit; z-index: 0; }
+  .tag .x, .tag .strip { position: relative; z-index: 1; }
+  .query-label { grid-column: 1 / -1; font-size: 14px; color: var(--mute); margin: 6px 0 -6px; display: flex; gap: 8px; align-items: center; }
+  .query-label q { color: var(--ink); font-weight: 600; }
+
+  /* ---------- waiting list ---------- */
+  .waiting { margin-top: 34px; }
+  .wait-row { display: flex; align-items: center; gap: 12px; padding: 11px 4px; border-bottom: 1px solid var(--line); }
+  .wait-row:first-of-type { border-top: 1px solid var(--line); }
+  .wait-row .kind { font: 600 13px/1 var(--cond); color: var(--mute); border: 1px solid var(--line); border-radius: 3px; padding: 4px 6px 3px; flex: none; background: var(--tag); }
+  .wait-row .label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wait-row a.label:hover { color: var(--red); }
+  a { color: inherit; text-decoration: none; }
+
+  .empty { background: var(--tag); border-radius: 10px; padding: 34px 28px; color: var(--mute); }
+  .empty strong { display: block; color: var(--ink); font: 700 22px/1.15 var(--cond); margin-bottom: 6px; }
+
+  /* ---------- search column ---------- */
+  .side { position: sticky; top: 20px; background: var(--tag); border-radius: 10px; padding: 18px; max-height: calc(100vh - 40px); display: flex; flex-direction: column; }
+  .side input { border: 1px solid var(--line); border-radius: 8px; padding: 11px 13px; font-size: 15px; width: 100%; background: var(--shelf); }
+  .side input:focus { outline: none; border-color: var(--ink); background: #fff; }
+  .side .count { font-size: 13px; color: var(--mute); margin: 10px 2px 4px; }
+  .results { overflow-y: auto; margin: 0 -18px -18px; padding: 0 18px 18px; }
+  .res { display: grid; grid-template-columns: 46px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--shelf); }
+  .res img { width: 46px; height: 46px; object-fit: contain; }
+  .res .nm { font-size: 13.5px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .res .pr { font: 700 17px/1.1 var(--cond); color: var(--red); margin-top: 2px; }
+  .res .pr s { font: 400 12px var(--body); color: var(--mute); margin-left: 4px; }
+  .res .pr .dl { font: 600 14px var(--cond); }
+  .watch { border: 1.5px solid var(--red); color: var(--red); background: #fff; border-radius: 6px; font: 700 14px/1 var(--cond); padding: 7px 10px 6px; letter-spacing: .02em; }
+  .watch:hover { background: var(--red); color: #fff; }
+  .watch[disabled] { border-color: var(--line); color: var(--mute); background: #fff; cursor: default; }
+  .side .hint { color: var(--mute); font-size: 14px; padding: 18px 2px; }
+
+  /* ---------- key panel ---------- */
+  .keypanel { max-width: 1240px; margin: 20px auto 0; padding: 0 32px; }
+  .keypanel .box { background: var(--yellow); border-radius: 10px; padding: 18px 20px; display: grid; grid-template-columns: 1fr auto; gap: 12px 16px; align-items: end; }
+  .keypanel h3 { margin: 0; font: 700 21px/1.1 var(--cond); grid-column: 1 / -1; }
+  .keypanel p { margin: -6px 0 0; font-size: 14px; grid-column: 1 / -1; }
+  .keypanel p a { text-decoration: underline; }
+  .keypanel label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .keypanel .fields { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+  .keypanel input { width: 100%; border: 1px solid rgba(36,25,29,.25); border-radius: 7px; padding: 10px 12px; background: #fff; font-size: 14px; }
+  .keypanel .save { border: 0; background: var(--ink); color: #fff; border-radius: 7px; padding: 11px 18px; font: 700 16px/1 var(--cond); letter-spacing: .03em; }
+
+  /* ---------- toast ---------- */
+  #toast { position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 12px); background: var(--ink); color: #fff; padding: 11px 18px; border-radius: 8px; font-size: 14px; opacity: 0; transition: opacity .18s, transform .18s; pointer-events: none; z-index: 20; max-width: 90vw; }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; }
+    .side { position: static; max-height: none; }
+    .band-inner, .adder, .wrap, .keypanel { padding-left: 18px; padding-right: 18px; }
+    .keypanel .box, .keypanel .fields { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
 </style>
 </head>
 <body>
-<header>
-  <h1>Rossmann Watch<br><small id="updated">…</small></h1>
-  <button id="gear">⚙︎</button>
-</header>
-<nav>
-  <button data-tab="mine" class="on">Moje</button>
-  <button data-tab="promos">Promocje</button>
-</nav>
-<main>
-  <section id="settings">
-    <b>Ustawienia</b>
-    <label>GitHub token (fine-grained, Contents: read &amp; write na to repo)</label>
-    <input id="token" type="password" autocomplete="off" placeholder="github_pat_…">
-    <label>Repo (owner/name)</label>
-    <input id="repo" placeholder="owner/rossmann-watch">
-    <div class="row" style="margin-top:12px"><button class="btn" id="saveSettings" style="padding:11px 14px">Zapisz</button></div>
-  </section>
 
-  <section id="tab-mine">
-    <div class="row">
-      <input id="addInput" placeholder="Link z rossmann.pl albo słowa, np. schauma for men">
-      <button class="btn" id="addBtn">Dodaj</button>
+<div class="band">
+  <div class="band-inner">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 9.5 9.5 3H22l7 6.5V29H3z" fill="#fff"/><circle cx="23.5" cy="8.5" r="2" fill="#c8102e"/><path d="M10 22.5 19 13" stroke="#c8102e" stroke-width="2.4" stroke-linecap="round"/><circle cx="10.6" cy="14.4" r="2.2" fill="none" stroke="#c8102e" stroke-width="2"/><circle cx="18.4" cy="21.4" r="2.2" fill="none" stroke="#c8102e" stroke-width="2"/></svg>
+      Rossmann Watch
     </div>
-    <p class="hint">Link = dokładnie ten produkt. Słowa = każdy produkt w promocji, który zawiera wszystkie te słowa.</p>
-    <div id="mineList"></div>
-  </section>
+    <div class="top-actions"><button class="ghost" id="keyBtn">Klucz GitHub</button></div>
+    <h1 class="headline" id="headline">Ładuję promocje…</h1>
+    <p class="sub" id="sub"></p>
+  </div>
+</div>
 
-  <section id="tab-promos" hidden>
-    <div class="row"><input id="search" placeholder="Szukaj w aktualnych promocjach…"></div>
-    <div id="promoList"></div>
-  </section>
-</main>
-<div id="toast"></div>
+<div class="adder">
+  <form id="addForm" autocomplete="off">
+    <input id="addInput" placeholder="Wklej link z rossmann.pl albo wpisz słowa, np. nivea q10" aria-label="Produkt do obserwowania">
+    <button type="submit">Obserwuj</button>
+  </form>
+  <p>Link obserwuje ten jeden produkt. Słowa łapią każdy produkt w promocji, który ma je wszystkie w nazwie.</p>
+</div>
+
+<div class="keypanel" id="keypanel" hidden>
+  <form class="box" id="keyForm" autocomplete="off">
+    <h3>Wklej klucz GitHub, żeby zapisywać listę</h3>
+    <p>Wystarczy raz na tym komputerze. Klucz zostaje tylko w tej przeglądarce. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Utwórz klucz</a> z dostępem Contents: Read and write do repo rossmann-watch.</p>
+    <div class="fields">
+      <div><label for="token">Klucz</label><input id="token" type="password" placeholder="github_pat_…"></div>
+      <div><label for="repo">Repo</label><input id="repo" placeholder="zavika/rossmann-watch"></div>
+    </div>
+    <button class="save" type="submit">Zapisz klucz</button>
+  </form>
+</div>
+
+<div class="wrap">
+  <main>
+    <h2 id="saleTitle">W promocji</h2>
+    <div class="tags" id="saleList"></div>
+    <section class="waiting" id="waiting" hidden>
+      <h2>Czekam na promocję <small id="waitCount"></small></h2>
+      <div id="waitList"></div>
+    </section>
+  </main>
+  <aside class="side">
+    <h2>Szukaj w promocjach</h2>
+    <input id="search" placeholder="np. szampon, ziaja, pasta" aria-label="Szukaj w aktualnych promocjach">
+    <div class="count" id="searchCount"></div>
+    <div class="results" id="results"></div>
+  </aside>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const $ = s => document.querySelector(s);
-const LS = { get:k => { try { return localStorage.getItem(k) || ''; } catch { return ''; } },
-             set:(k,v) => { try { localStorage.setItem(k, v); } catch {} } };
-const norm = s => (s||'').toLowerCase().replace(/ł/g,'l').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
-const zl = n => n == null ? '' : n.toFixed(2).replace('.', ',') + ' zł';
-const plDate = iso => iso ? iso.slice(8,10) + '.' + iso.slice(5,7) : '';
+const LS = { get: k => { try { return localStorage.getItem(k) || ''; } catch { return ''; } },
+             set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
+const norm = s => (s || '').toLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+const plDate = iso => iso ? iso.slice(8, 10) + '.' + iso.slice(5, 7) : '';
 const plural = (n, one, few, many) => n === 1 ? one : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? few : many;
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const todayIso = () => new Intl.DateTimeFormat('en-CA', { timeZone:'Europe/Warsaw' }).format(new Date());
-function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2600); }
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const todayIso = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Warsaw' }).format(new Date());
+const daysLeft = p => p.to ? Math.round((Date.parse(p.to) - Date.parse(todayIso())) / 864e5) : null;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2800); }
 
-let promos = [], watchlist = [], sha = null;
+let promos = [], promoById = new Map(), watchlist = [], sha = null, updatedAt = null;
 
+// ---------- GitHub storage ----------
 function defaultRepo() {
   const owner = location.hostname.endsWith('.github.io') ? location.hostname.split('.')[0] : '';
   const name = location.pathname.split('/').filter(Boolean)[0] || '';
@@ -101,135 +216,163 @@ function defaultRepo() {
 }
 const repo = () => LS.get('repo') || defaultRepo();
 const token = () => LS.get('token');
-
-function matches(w, p) {
-  if (w.id) return Number(w.id) === p.id;
-  const terms = norm(w.query).split(' ').filter(Boolean);
-  const hay = norm(p.brand + ' ' + p.name);
-  return terms.length && terms.every(t => hay.includes(t));
-}
-
-// ---- GitHub storage ----
 const b64enc = s => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
-const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,'')), c => c.charCodeAt(0)));
+const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g, '')), c => c.charCodeAt(0)));
 async function gh(path, opts = {}) {
   const r = await fetch(`https://api.github.com/repos/${repo()}/contents/${path}`, {
-    ...opts, headers: { 'Authorization': `Bearer ${token()}`, 'Accept': 'application/vnd.github+json', ...(opts.headers||{}) }
+    ...opts, headers: { Authorization: `Bearer ${token()}`, Accept: 'application/vnd.github+json', ...(opts.headers || {}) }
   });
-  if (!r.ok) throw new Error(`GitHub ${r.status}`);
+  if (!r.ok) throw new Error(r.status === 401 ? 'klucz jest nieprawidłowy albo wygasł' : r.status === 404 ? 'nie widzę repo — sprawdź nazwę i dostęp klucza' : `GitHub ${r.status}`);
   return r.json();
 }
 async function loadWatchlist() {
   if (token() && repo()) {
     try { const f = await gh('watchlist.json'); sha = f.sha; watchlist = JSON.parse(b64dec(f.content)); return; }
-    catch (e) { toast('Nie mogę odczytać z GitHuba: ' + e.message); }
+    catch (e) { toast('Nie udało się wczytać listy: ' + e.message); }
   }
-  try { watchlist = await fetch('watchlist.json', { cache:'no-store' }).then(r => r.json()); } catch { watchlist = []; }
+  try { watchlist = await fetch('watchlist.json', { cache: 'no-store' }).then(r => r.json()); } catch { watchlist = []; }
 }
 async function saveWatchlist(msg) {
-  if (!token() || !repo()) { $('#settings').style.display = 'block'; toast('Najpierw wpisz token GitHuba'); throw new Error('no token'); }
+  if (!token() || !repo()) { showKeyPanel(); toast('Najpierw wklej klucz GitHub'); throw new Error('no token'); }
   const body = { message: msg, content: b64enc(JSON.stringify(watchlist, null, 1) + '\n'), sha };
-  const r = await gh('watchlist.json', { method:'PUT', body: JSON.stringify(body) });
+  const r = await gh('watchlist.json', { method: 'PUT', body: JSON.stringify(body) });
   sha = r.content.sha;
-  toast('Zapisane ✓ — sprawdzam promocje w tle');
 }
 
-// ---- add / remove ----
+// ---------- matching ----------
+function hitsFor(w) {
+  if (w.id) { const p = promoById.get(Number(w.id)); return p ? [p] : []; }
+  const terms = norm(w.query).split(' ').filter(Boolean);
+  return terms.length ? promos.filter(p => terms.every(t => p._h.includes(t))) : [];
+}
+
+// ---------- add / remove ----------
 function parseInput(raw) {
   const s = raw.trim();
   const m = s.match(/rossmann\.pl\/Produkt\/[^/]+\/([^,?#]+),(\d+)/i);
-  if (m) return { id: Number(m[2]), label: decodeURIComponent(m[1]).replace(/-/g, ' ') };
+  if (m) return { id: Number(m[2]), label: decodeURIComponent(m[1]).replace(/-/g, ' '), url: s.split(/[?#]/)[0].replace(/^(?!https?:)/, 'https://') };
   if (/^\d{4,}$/.test(s)) return { id: Number(s), label: `Produkt ${s}` };
   return s ? { query: s, label: s } : null;
 }
 async function addItem(item) {
-  const dup = watchlist.some(w => (item.id && w.id === item.id) || (item.query && norm(w.query) === norm(item.query)));
-  if (dup) { toast('Już jest na liście'); return; }
-  watchlist.push(item);
-  render();
-  try { await saveWatchlist(`watch: ${item.label}`); } catch { watchlist.pop(); render(); }
+  const dup = watchlist.some(w => (item.id && Number(w.id) === item.id) || (item.query && w.query && norm(w.query) === norm(item.query)));
+  if (dup) { toast('To już jest na liście'); return; }
+  watchlist.push(item); render();
+  try { await saveWatchlist(`watch: ${item.label}`); toast(`Obserwujesz: ${item.label}`); }
+  catch (e) { watchlist.pop(); render(); if (e.message !== 'no token') toast('Nie zapisano: ' + e.message); }
 }
 async function removeItem(idx) {
-  const [gone] = watchlist.splice(idx, 1);
-  render();
-  try { await saveWatchlist(`unwatch: ${gone.label}`); } catch { watchlist.splice(idx, 0, gone); render(); }
+  const [gone] = watchlist.splice(idx, 1); render();
+  try { await saveWatchlist(`unwatch: ${gone.label}`); toast(`Usunięto: ${gone.label}`); }
+  catch (e) { watchlist.splice(idx, 0, gone); render(); if (e.message !== 'no token') toast('Nie zapisano: ' + e.message); }
 }
 
-// ---- render ----
-function statusTag(p) {
-  if (!p) return '';
-  const left = p.to ? Math.round((Date.parse(p.to) - Date.parse(todayIso())) / 864e5) : null;
-  if (left != null && left < 0) return `<span class="tag none">Skończyła się ${plDate(p.to)}</span>`;
-  if (left != null && left <= 2) return `<span class="tag end">Kończy się ${plDate(p.to)}</span>`;
-  return `<span class="tag sale">Promo${p.to ? ' do ' + plDate(p.to) : ''}</span>`;
+// ---------- render ----------
+function priceBig(n) {
+  const [zl, gr] = n.toFixed(2).split('.');
+  return `<span class="now">${zl}<sup>,${gr}</sup><span class="cur">zł</span></span>`;
 }
-function priceHtml(p) {
-  return `<span class="price">${zl(p.price)}</span>${p.oldPrice ? `<span class="old">${zl(p.oldPrice)}</span>` : ''}`
-    + (!p.oldPrice && p.deal ? `<div class="m">${esc(p.deal.split('.')[0])}</div>` : '');
+function tagCard(p, removeIdx) {
+  const left = daysLeft(p);
+  const ending = left != null && left >= 0 && left <= 2;
+  const over = left != null && left < 0;
+  const priceBlock = p.oldPrice
+    ? `${priceBig(p.price)}<div class="was">było <s>${p.oldPrice.toFixed(2).replace('.', ',')} zł</s><br><span class="off">−${Math.round((1 - p.price / p.oldPrice) * 100)}%</span></div>`
+    : `<div><div class="deal">${esc(p.deal ? p.deal.split('.')[0] : '')}</div>${p.price != null ? `<div class="was">${p.price.toFixed(2).replace('.', ',')} zł / szt.</div>` : ''}</div>`;
+  const stripText = over ? `Skończyła się ${plDate(p.to)}`
+    : ending ? (left === 0 ? 'Ostatni dzień promocji' : `Kończy się ${plDate(p.to)}`)
+    : p.to ? `Promocja do ${plDate(p.to)}` : 'Promocja';
+  return `<article class="tag${ending ? ' ending' : ''}">
+    <a class="cover" href="${esc(p.url)}" target="_blank" rel="noopener" aria-label="Otwórz ${esc(p.brand)} ${esc(p.name)} na rossmann.pl"></a>
+    <div class="tag-top">${p.img ? `<img class="tag-img" src="${esc(p.img)}" alt="" loading="lazy">` : ''}
+      <div><div class="tag-name"><b>${esc(p.brand)}</b> ${esc(p.name)}</div><div class="tag-unit">${esc(p.unit)}</div></div></div>
+    <div class="tag-price">${priceBlock}</div>
+    <div class="strip"><span>${stripText}</span>${removeIdx != null ? `<button class="x" data-del="${removeIdx}" title="Przestań obserwować">Usuń</button>` : ''}</div>
+  </article>`;
 }
-function productCard(p, right) {
-  return `<div class="card"><a href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.img||'')}" alt="" loading="lazy"></a>
-    <a class="t" href="${esc(p.url)}" target="_blank" rel="noopener"><div class="n">${esc(p.brand)} ${esc(p.name)}</div>
-    <div class="m">${esc(p.unit)}</div>${priceHtml(p)}<div>${statusTag(p)}</div></a>${right}</div>`;
+
+function renderList() {
+  const onSale = [], waiting = [];
+  watchlist.forEach((w, idx) => { const h = hitsFor(w); (h.length ? onSale : waiting).push({ w, idx, h }); });
+
+  // headline
+  const nSale = onSale.reduce((a, x) => a + x.h.length, 0);
+  $('#headline').textContent = !watchlist.length ? 'Dodaj produkty, których używasz. Dam znać, kiedy stanieją.'
+    : nSale ? `${nSale} ${plural(nSale, 'produkt', 'produkty', 'produktów')} z Twojej listy ${plural(nSale, 'jest', 'są', 'jest')} teraz w promocji`
+    : 'Nic z Twojej listy nie jest teraz w promocji';
+  $('#sub').textContent = updatedAt
+    ? `Sprawdzone ${new Date(updatedAt).toLocaleString('pl-PL', { weekday: 'long', hour: '2-digit', minute: '2-digit' })}. W Rossmannie jest teraz ${promos.length.toLocaleString('pl-PL')} ${plural(promos.length, 'produkt', 'produkty', 'produktów')} w promocji.`
+    : '';
+
+  // on sale
+  const list = $('#saleList');
+  $('#saleTitle').hidden = !onSale.length && !!watchlist.length;
+  if (!watchlist.length) {
+    list.innerHTML = `<div class="empty" style="grid-column:1/-1"><strong>Twoja lista jest pusta</strong>Wklej link do produktu z rossmann.pl w polu wyżej albo znajdź coś po prawej i kliknij Obserwuj.</div>`;
+  } else {
+    list.innerHTML = onSale.map(({ w, idx, h }) => w.id ? tagCard(h[0], idx)
+      : `<div class="query-label">Słowa <q>${esc(w.query)}</q> · ${h.length} ${plural(h.length, 'produkt', 'produkty', 'produktów')} <button class="x" data-del="${idx}">Usuń</button></div>`
+        + h.slice(0, 12).map(p => tagCard(p, null)).join('')).join('');
+  }
+
+  // waiting
+  $('#waiting').hidden = !waiting.length;
+  $('#waitCount').textContent = waiting.length ? `${waiting.length}` : '';
+  $('#waitList').innerHTML = waiting.map(({ w, idx }) => `<div class="wait-row">
+      <span class="kind">${w.id ? 'produkt' : 'słowa'}</span>
+      ${w.url ? `<a class="label" href="${esc(w.url)}" target="_blank" rel="noopener">${esc(w.label)}</a>` : `<span class="label">${esc(w.label)}</span>`}
+      <button class="x" data-del="${idx}">Usuń</button></div>`).join('');
 }
-function renderMine() {
-  const el = $('#mineList');
-  if (!watchlist.length) { el.innerHTML = '<div class="empty">Pusto. Dodaj link do produktu albo słowa,<br>albo wybierz z zakładki Promocje.</div>'; return; }
-  const onSale = [], off = [];
-  watchlist.forEach((w, idx) => {
-    const hits = promos.filter(p => matches(w, p));
-    (hits.length ? onSale : off).push({ w, idx, hits });
-  });
-  const del = idx => `<button class="icon" data-del="${idx}" title="Usuń">✕</button>`;
-  el.innerHTML =
-    onSale.map(({ w, idx, hits }) => hits.slice(0, 6).map((p, j) => productCard(p, j === 0 ? del(idx) : '<span style="width:32px"></span>')).join('')
-      + (w.query && hits.length > 1 ? `<div class="hint">„${esc(w.query)}”: ${hits.length} ${plural(hits.length, 'pasujący', 'pasujące', 'pasujących')} w promocji</div>` : '')).join('')
-    + off.map(({ w, idx }) => `<div class="card"><div class="t"><div class="n">${esc(w.label)}</div>
-        <div class="m">${w.id ? 'produkt' : 'słowa'}</div><span class="tag none">Nie w promocji</span></div>${del(idx)}</div>`).join('');
-}
-function renderPromos() {
+
+function renderSearch() {
   const q = norm($('#search').value);
-  const el = $('#promoList');
-  if (q.length < 2) { el.innerHTML = `<div class="empty">${promos.length} ${plural(promos.length, 'produkt', 'produkty', 'produktów')} w promocji. Wpisz min. 2 znaki.</div>`; return; }
+  const out = $('#results'), cnt = $('#searchCount');
+  if (q.length < 2) { cnt.textContent = ''; out.innerHTML = `<div class="hint">Wpisz nazwę, markę albo rodzaj produktu.</div>`; return; }
   const terms = q.split(' ');
-  const res = promos.filter(p => { const h = norm(p.brand + ' ' + p.name); return terms.every(t => h.includes(t)); }).slice(0, 60);
-  const watched = id => watchlist.some(w => w.id === id);
-  el.innerHTML = res.length ? res.map(p => productCard(p, watched(p.id) ? '<span class="icon">✓</span>'
-      : `<button class="icon add" data-add="${p.id}" title="Obserwuj">＋</button>`)).join('')
-    : '<div class="empty">Nic nie znaleziono w aktualnych promocjach.<br>Możesz dodać to w „Moje” — dam znać, jak wejdzie.</div>';
+  const res = promos.filter(p => terms.every(t => p._h.includes(t)));
+  const watched = new Set(watchlist.filter(w => w.id).map(w => Number(w.id)));
+  cnt.textContent = res.length ? `${res.length} ${plural(res.length, 'wynik', 'wyniki', 'wyników')}${res.length > 100 ? ', pokazuję 100' : ''}` : '';
+  out.innerHTML = res.length ? res.slice(0, 100).map(p => `<div class="res">
+      ${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy">` : '<span></span>'}
+      <a href="${esc(p.url)}" target="_blank" rel="noopener"><div class="nm"><b>${esc(p.brand)}</b> ${esc(p.name)}</div>
+        <div class="pr">${p.oldPrice ? `${p.price.toFixed(2).replace('.', ',')} zł<s>${p.oldPrice.toFixed(2).replace('.', ',')} zł</s>` : `<span class="dl">${esc(p.deal ? p.deal.split('.')[0] : (p.price?.toFixed(2).replace('.', ',') + ' zł'))}</span>`}</div></a>
+      ${watched.has(p.id) ? '<button class="watch" disabled>Na liście</button>' : `<button class="watch" data-add="${p.id}">Obserwuj</button>`}
+    </div>`).join('')
+    : `<div class="hint">Tego teraz nie ma w promocji. Dodaj to w polu u góry, a dam znać, kiedy wejdzie.</div>`;
 }
-function render() { renderMine(); renderPromos(); }
+function render() { renderList(); renderSearch(); }
 
-// ---- events ----
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
-  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
-  $('#tab-mine').hidden = b.dataset.tab !== 'mine';
-  $('#tab-promos').hidden = b.dataset.tab !== 'promos';
-});
-$('#gear').onclick = () => { const s = $('#settings'); s.style.display = s.style.display === 'block' ? 'none' : 'block'; };
-$('#saveSettings').onclick = async () => {
-  LS.set('token', $('#token').value.trim()); LS.set('repo', $('#repo').value.trim());
-  $('#settings').style.display = 'none'; await loadWatchlist(); render(); toast('Ustawienia zapisane');
+// ---------- key panel ----------
+function showKeyPanel() { $('#keypanel').hidden = false; $('#token').focus(); }
+$('#keyBtn').onclick = () => { const k = $('#keypanel'); k.hidden = !k.hidden; if (!k.hidden) $('#token').focus(); };
+$('#keyForm').onsubmit = async e => {
+  e.preventDefault();
+  LS.set('token', $('#token').value.trim()); LS.set('repo', $('#repo').value.trim() || defaultRepo());
+  await loadWatchlist();
+  if (sha) { $('#keypanel').hidden = true; toast('Klucz zapisany'); }
+  render();
 };
-$('#addBtn').onclick = () => { const it = parseInput($('#addInput').value); if (it) { $('#addInput').value = ''; addItem(it); } };
-$('#addInput').onkeydown = e => { if (e.key === 'Enter') $('#addBtn').click(); };
-$('#search').oninput = renderPromos;
+
+// ---------- events ----------
+$('#addForm').onsubmit = e => { e.preventDefault(); const it = parseInput($('#addInput').value); if (it) { $('#addInput').value = ''; addItem(it); } };
+let st; $('#search').oninput = () => { clearTimeout(st); st = setTimeout(renderSearch, 120); };
 document.body.addEventListener('click', e => {
   const a = e.target.closest('[data-add]'), d = e.target.closest('[data-del]');
-  if (a) { const p = promos.find(x => x.id === Number(a.dataset.add)); addItem({ id: p.id, label: `${p.brand} ${p.name} ${p.unit}`.trim() }); }
-  if (d) removeItem(Number(d.dataset.del));
+  if (a) { const p = promoById.get(Number(a.dataset.add)); addItem({ id: p.id, label: `${p.brand} ${p.name} ${p.unit}`.trim(), url: p.url }); }
+  else if (d) { e.preventDefault(); removeItem(Number(d.dataset.del)); }
 });
 
-// ---- init ----
+// ---------- init ----------
 (async () => {
   $('#token').value = token(); $('#repo').value = repo();
   try {
-    const data = await fetch('promos.json', { cache:'no-store' }).then(r => r.json());
-    promos = data.items || [];
-    $('#updated').textContent = 'Aktualizacja: ' + new Date(data.updatedAt).toLocaleString('pl-PL', { dateStyle:'short', timeStyle:'short' });
-  } catch { $('#updated').textContent = 'Brak danych o promocjach'; }
+    const data = await fetch('promos.json', { cache: 'no-store' }).then(r => r.json());
+    promos = data.items || []; updatedAt = data.updatedAt;
+    promos.forEach(p => p._h = norm(p.brand + ' ' + p.name));
+    promoById = new Map(promos.map(p => [p.id, p]));
+  } catch { $('#headline').textContent = 'Nie mogę wczytać promocji'; }
   await loadWatchlist();
-  if (!token()) $('#settings').style.display = 'block';
+  if (!token()) $('#keypanel').hidden = false;
   render();
 })();
 </script>

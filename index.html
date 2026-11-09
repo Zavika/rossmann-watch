@@ -306,7 +306,7 @@ function renderList() {
     : nSale ? `${nSale} ${plural(nSale, 'produkt', 'produkty', 'produktów')} z Twojej listy ${plural(nSale, 'jest', 'są', 'jest')} teraz w promocji`
     : 'Nic z Twojej listy nie jest teraz w promocji';
   $('#sub').textContent = updatedAt
-    ? `Sprawdzone ${new Date(updatedAt).toLocaleString('pl-PL', { weekday: 'long', hour: '2-digit', minute: '2-digit' })}. W Rossmannie jest teraz ${promos.length.toLocaleString('pl-PL')} ${plural(promos.length, 'produkt', 'produkty', 'produktów')} w promocji.`
+    ? `Sprawdzone ${new Date(updatedAt).toLocaleString('pl-PL', { weekday: 'long', hour: '2-digit', minute: '2-digit' })}. W Rossmannie ${plural(promos.length, 'jest', 'są', 'jest')} teraz ${promos.length.toLocaleString('pl-PL')} ${plural(promos.length, 'produkt', 'produkty', 'produktów')} w promocji.`
     : '';
 
   // on sale
@@ -347,7 +347,7 @@ function renderSearch() {
   const watched = new Set(watchlist.filter(w => w.id).map(w => Number(w.id)));
   const qOn = watchlist.some(w => w.query && norm(w.query) === q);
   const head = `<div class="drop-head"><div class="txt">${res.length
-      ? `<b>${res.length} ${plural(res.length, 'produkt', 'produkty', 'produktów')}</b> w promocji pasuje do „${esc(raw)}”.`
+      ? `<b>${res.length} ${plural(res.length, 'produkt', 'produkty', 'produktów')}</b> w promocji ${plural(res.length, 'pasuje', 'pasują', 'pasuje')} do „${esc(raw)}”.`
       : `Nic pasującego do „${esc(raw)}” nie jest teraz w promocji.`}
       Możesz obserwować same słowa, wtedy dam znać o każdym produkcie, który je ma.</div>
     ${qOn ? '<button class="watch" disabled>Słowa na liście</button>' : '<button class="watch" data-addquery="1">Obserwuj słowa</button>'}</div>`;

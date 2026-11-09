@@ -43,7 +43,18 @@
   /* ---------- add bar (sits across the band edge) ---------- */
   .adder { max-width: 1240px; margin: -26px auto 0; padding: 0 32px; position: relative; }
   .adder form { display: flex; background: var(--tag); border-radius: 10px; box-shadow: 0 10px 30px -12px rgba(60, 10, 20, .35); overflow: hidden; }
-  .adder input { flex: 1; border: 0; padding: 17px 20px; font-size: 17px; min-width: 0; background: transparent; }
+  .adder input { flex: 1; border: 0; padding: 18px 20px 18px 6px; font-size: 17px; min-width: 0; background: transparent; }
+  .lens { width: 22px; height: 22px; color: var(--mute); align-self: center; margin-left: 18px; flex: none; }
+  .drop { position: absolute; left: 32px; right: 32px; top: calc(100% - 30px); z-index: 10; background: var(--tag); border-radius: 0 0 10px 10px;
+    box-shadow: 0 22px 40px -18px rgba(36, 25, 29, .45); max-height: min(62vh, 620px); overflow-y: auto; border-top: 1px solid var(--line); }
+  .adder:has(.drop:not([hidden])) form { border-radius: 10px 10px 0 0; }
+  .drop-head { display: flex; align-items: center; gap: 14px; padding: 14px 20px; background: #fbfbfc; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 1; }
+  .drop-head .txt { flex: 1; font-size: 14px; color: var(--mute); }
+  .drop-head .txt b { color: var(--ink); font-weight: 600; }
+  .drop .res { padding: 10px 20px; grid-template-columns: 52px 1fr auto auto; border-bottom: 1px solid var(--shelf); gap: 14px; }
+  .drop .res img { width: 52px; height: 52px; }
+  .drop .res .when { font-size: 13px; color: var(--mute); white-space: nowrap; }
+  .drop .none { padding: 18px 20px; color: var(--mute); font-size: 14px; }
   .adder input:focus { outline: none; }
   .adder form:focus-within { box-shadow: 0 0 0 3px var(--ink), 0 10px 30px -12px rgba(60, 10, 20, .35); }
   .adder button { border: 0; background: var(--ink); color: #fff; padding: 0 26px; font: 700 18px/1 var(--cond); letter-spacing: .03em; }
@@ -51,7 +62,7 @@
   .adder p { margin: 8px 4px 0; font-size: 13px; color: var(--mute); }
 
   /* ---------- layout ---------- */
-  .wrap { max-width: 1240px; margin: 0 auto; padding: 28px 32px 60px; display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 36px; align-items: start; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 28px 32px 60px; }
   h2 { font: 700 24px/1.1 var(--cond); margin: 0 0 14px; display: flex; align-items: baseline; gap: 10px; }
   h2 small { font: 500 15px var(--body); color: var(--mute); }
 
@@ -134,7 +145,8 @@
 
   @media (max-width: 900px) {
     .wrap { grid-template-columns: 1fr; }
-    .side { position: static; max-height: none; }
+    .drop { left: 18px; right: 18px; }
+    .drop .res .when { display: none; }
     .band-inner, .adder, .wrap, .keypanel { padding-left: 18px; padding-right: 18px; }
     .keypanel .box, .keypanel .fields { grid-template-columns: 1fr; }
   }
@@ -157,10 +169,11 @@
 
 <div class="adder">
   <form id="addForm" autocomplete="off">
-    <input id="addInput" placeholder="Wklej link z rossmann.pl albo wpisz słowa, np. nivea q10" aria-label="Produkt do obserwowania">
-    <button type="submit">Obserwuj</button>
+    <svg class="lens" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    <input id="addInput" placeholder="Szukaj w promocjach albo wklej link z rossmann.pl" aria-label="Szukaj w promocjach albo wklej link">
   </form>
-  <p>Link obserwuje ten jeden produkt. Słowa łapią każdy produkt w promocji, który ma je wszystkie w nazwie.</p>
+  <div class="drop" id="drop" hidden></div>
+  <p>Wpisz, czego używasz, i kliknij Obserwuj. Dam znać, kiedy będzie w promocji i kiedy promocja się kończy.</p>
 </div>
 
 <div class="keypanel" id="keypanel" hidden>
@@ -184,12 +197,6 @@
       <div id="waitList"></div>
     </section>
   </main>
-  <aside class="side">
-    <h2>Szukaj w promocjach</h2>
-    <input id="search" placeholder="np. szampon, ziaja, pasta" aria-label="Szukaj w aktualnych promocjach">
-    <div class="count" id="searchCount"></div>
-    <div class="results" id="results"></div>
-  </aside>
 </div>
 
 <div id="toast" role="status" aria-live="polite"></div>
@@ -308,7 +315,7 @@ function renderList() {
   const list = $('#saleList');
   $('#saleTitle').hidden = !onSale.length && !!watchlist.length;
   if (!watchlist.length) {
-    list.innerHTML = `<div class="empty" style="grid-column:1/-1"><strong>Twoja lista jest pusta</strong>Wklej link do produktu z rossmann.pl w polu wyżej albo znajdź coś po prawej i kliknij Obserwuj.</div>`;
+    list.innerHTML = `<div class="empty" style="grid-column:1/-1"><strong>Twoja lista jest pusta</strong>Wpisz w polu wyżej, czego używasz, na przykład szampon albo nazwę marki, i kliknij Obserwuj.</div>`;
   } else {
     list.innerHTML = onSale.map(({ w, idx, h }) => w.id ? tagCard(h[0], idx)
       : `<div class="query-label">Słowa <q>${esc(w.query)}</q>: ${h.length} ${plural(h.length, 'produkt', 'produkty', 'produktów')} <button class="x" data-del="${idx}">Usuń</button></div>`
@@ -325,20 +332,35 @@ function renderList() {
 }
 
 function renderSearch() {
-  const q = norm($('#search').value);
-  const out = $('#results'), cnt = $('#searchCount');
-  if (q.length < 2) { cnt.textContent = ''; out.innerHTML = `<div class="hint">Wpisz nazwę, markę albo rodzaj produktu.</div>`; return; }
+  const raw = $('#addInput').value.trim();
+  const drop = $('#drop');
+  const link = parseInput(raw);
+  if (link && link.id && /rossmann\.pl/i.test(raw)) {
+    const p = promoById.get(link.id);
+    const on = watchlist.some(w => Number(w.id) === link.id);
+    drop.innerHTML = `<div class="drop-head"><div class="txt"><b>${esc(p ? p.brand + ' ' + p.name : link.label)}</b><br>${p ? 'Jest teraz w promocji.' : 'Teraz nie jest w promocji. Dam znać, kiedy wejdzie.'}</div>
+      ${on ? '<button class="watch" disabled>Na liście</button>' : '<button class="watch" data-addlink="1">Obserwuj ten produkt</button>'}</div>`;
+    drop.hidden = false; return;
+  }
+  const q = norm(raw);
+  if (q.length < 2) { drop.hidden = true; drop.innerHTML = ''; return; }
   const terms = q.split(' ');
   const res = promos.filter(p => terms.every(t => p._h.includes(t)));
   const watched = new Set(watchlist.filter(w => w.id).map(w => Number(w.id)));
-  cnt.textContent = res.length ? `${res.length} ${plural(res.length, 'wynik', 'wyniki', 'wyników')}${res.length > 100 ? ', pokazuję 100' : ''}` : '';
-  out.innerHTML = res.length ? res.slice(0, 100).map(p => `<div class="res">
+  const qOn = watchlist.some(w => w.query && norm(w.query) === q);
+  const head = `<div class="drop-head"><div class="txt">${res.length
+      ? `<b>${res.length} ${plural(res.length, 'produkt', 'produkty', 'produktów')}</b> w promocji pasuje do „${esc(raw)}”.`
+      : `Nic pasującego do „${esc(raw)}” nie jest teraz w promocji.`}
+      Możesz obserwować same słowa, wtedy dam znać o każdym produkcie, który je ma.</div>
+    ${qOn ? '<button class="watch" disabled>Słowa na liście</button>' : '<button class="watch" data-addquery="1">Obserwuj słowa</button>'}</div>`;
+  drop.innerHTML = head + (res.length ? res.slice(0, 100).map(p => `<div class="res">
       ${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy">` : '<span></span>'}
-      <a href="${esc(p.url)}" target="_blank" rel="noopener"><div class="nm"><b>${esc(p.brand)}</b> ${esc(p.name)}</div>
+      <a href="${esc(p.url)}" target="_blank" rel="noopener"><div class="nm"><b>${esc(p.brand)}</b> ${esc(p.name)} <span style="color:var(--mute)">${esc(p.unit)}</span></div>
         <div class="pr">${p.oldPrice ? `${p.price.toFixed(2).replace('.', ',')} zł<s>${p.oldPrice.toFixed(2).replace('.', ',')} zł</s>` : `<span class="dl">${esc(p.deal ? p.deal.split('.')[0] : (p.price?.toFixed(2).replace('.', ',') + ' zł'))}</span>`}</div></a>
+      <span class="when">${p.to ? 'do ' + plDate(p.to) : ''}</span>
       ${watched.has(p.id) ? '<button class="watch" disabled>Na liście</button>' : `<button class="watch" data-add="${p.id}">Obserwuj</button>`}
-    </div>`).join('')
-    : `<div class="hint">Tego teraz nie ma w promocji. Dodaj to w polu u góry, a dam znać, kiedy wejdzie.</div>`;
+    </div>`).join('') + (res.length > 100 ? `<div class="none">Pokazuję 100 z ${res.length}. Doprecyzuj, czego szukasz.</div>` : '') : '');
+  drop.hidden = false;
 }
 function render() { renderList(); renderSearch(); }
 
@@ -354,11 +376,20 @@ $('#keyForm').onsubmit = async e => {
 };
 
 // ---------- events ----------
-$('#addForm').onsubmit = e => { e.preventDefault(); const it = parseInput($('#addInput').value); if (it) { $('#addInput').value = ''; addItem(it); } };
-let st; $('#search').oninput = () => { clearTimeout(st); st = setTimeout(renderSearch, 120); };
+$('#addForm').onsubmit = e => {
+  e.preventDefault();
+  const it = parseInput($('#addInput').value);
+  if (it && it.id && /rossmann\.pl/i.test($('#addInput').value)) { $('#addInput').value = ''; addItem(it).then(renderSearch); }
+};
+let st; $('#addInput').oninput = () => { clearTimeout(st); st = setTimeout(renderSearch, 120); };
+$('#addInput').onfocus = renderSearch;
+$('#addInput').onkeydown = e => { if (e.key === 'Escape') { $('#drop').hidden = true; $('#addInput').blur(); } };
+document.addEventListener('mousedown', e => { if (!e.target.closest('.adder')) $('#drop').hidden = true; });
 document.body.addEventListener('click', e => {
   const a = e.target.closest('[data-add]'), d = e.target.closest('[data-del]');
-  if (a) { const p = promoById.get(Number(a.dataset.add)); addItem({ id: p.id, label: `${p.brand} ${p.name} ${p.unit}`.trim(), url: p.url }); }
+  if (e.target.closest('[data-addquery]')) { const raw = $('#addInput').value.trim(); addItem({ query: raw, label: raw }).then(() => { $('#addInput').value = ''; renderSearch(); }); }
+  else if (e.target.closest('[data-addlink]')) { const it = parseInput($('#addInput').value); addItem(it).then(() => { $('#addInput').value = ''; renderSearch(); }); }
+  else if (a) { const p = promoById.get(Number(a.dataset.add)); addItem({ id: p.id, label: `${p.brand} ${p.name} ${p.unit}`.trim(), url: p.url }).then(renderSearch); }
   else if (d) { e.preventDefault(); removeItem(Number(d.dataset.del)); }
 });
 

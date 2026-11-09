@@ -72,7 +72,7 @@
   .tag-name b { font-weight: 600; }
   .tag-unit { font-size: 12px; color: var(--mute); margin-top: 2px; }
   .tag-price { padding: 10px 14px 12px; margin-top: auto; display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
-  .now { font: 800 44px/0.85 var(--cond); color: var(--red); letter-spacing: -.01em; }
+  .now { font: 800 44px/0.85 var(--cond); color: var(--red); letter-spacing: -.01em; white-space: nowrap; }
   .now sup { font-size: .45em; vertical-align: top; position: relative; top: .12em; margin-left: 1px; }
   .now .cur { font-size: .42em; margin-left: 3px; letter-spacing: 0; }
   .was { font-size: 13px; color: var(--mute); line-height: 1.2; }
@@ -311,7 +311,7 @@ function renderList() {
     list.innerHTML = `<div class="empty" style="grid-column:1/-1"><strong>Twoja lista jest pusta</strong>Wklej link do produktu z rossmann.pl w polu wyżej albo znajdź coś po prawej i kliknij Obserwuj.</div>`;
   } else {
     list.innerHTML = onSale.map(({ w, idx, h }) => w.id ? tagCard(h[0], idx)
-      : `<div class="query-label">Słowa <q>${esc(w.query)}</q> · ${h.length} ${plural(h.length, 'produkt', 'produkty', 'produktów')} <button class="x" data-del="${idx}">Usuń</button></div>`
+      : `<div class="query-label">Słowa <q>${esc(w.query)}</q>: ${h.length} ${plural(h.length, 'produkt', 'produkty', 'produktów')} <button class="x" data-del="${idx}">Usuń</button></div>`
         + h.slice(0, 12).map(p => tagCard(p, null)).join('')).join('');
   }
 

@@ -126,6 +126,24 @@
   .watch[disabled] { border-color: var(--line); color: var(--mute); background: #fff; cursor: default; }
   .side .hint { color: var(--mute); font-size: 14px; padding: 18px 2px; }
 
+  /* ---------- browse all promos ---------- */
+  .browse { margin-top: 48px; padding-top: 30px; border-top: 2px solid var(--line); }
+  .browse-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .sort { font-size: 14px; color: var(--mute); display: flex; align-items: center; gap: 8px; }
+  .sort select { border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px; background: var(--tag); font-size: 14px; color: var(--ink); }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 2px 0 18px; }
+  .chip { border: 1px solid var(--line); background: var(--tag); border-radius: 999px; padding: 6px 13px; font-size: 14px; color: var(--ink); }
+  .chip span { color: var(--mute); margin-left: 3px; }
+  .chip:hover { border-color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .chip[aria-pressed="true"] span { color: rgba(255,255,255,.65); }
+  .strip .add { border: 0; background: none; color: var(--red); font: 700 15px/1 var(--cond); letter-spacing: .02em; padding: 3px 4px; border-radius: 4px; }
+  .strip .add:hover { background: rgba(200, 16, 46, .08); }
+  .strip .on { font: 600 14px/1 var(--cond); color: var(--mute); }
+  .tag.ending .strip .add { color: var(--ink); }
+  .more { display: block; margin: 22px auto 0; border: 1.5px solid var(--ink); background: transparent; border-radius: 8px; padding: 11px 28px; font: 700 17px/1 var(--cond); letter-spacing: .03em; }
+  .more:hover { background: var(--ink); color: #fff; }
+
   /* ---------- key panel ---------- */
   .keypanel { max-width: 1240px; margin: 20px auto 0; padding: 0 32px; }
   .keypanel .box { background: var(--yellow); border-radius: 10px; padding: 18px 20px; display: grid; grid-template-columns: 1fr auto; gap: 12px 16px; align-items: end; }
@@ -193,6 +211,22 @@
     <section class="waiting" id="waiting" hidden>
       <h2>Czekam na promocję <small id="waitCount"></small></h2>
       <div id="waitList"></div>
+    </section>
+    <section class="browse" id="browse">
+      <div class="browse-head">
+        <h2>Aktualne promocje <small id="browseCount"></small></h2>
+        <label class="sort">Sortuj
+          <select id="sort">
+            <option value="disc">największa zniżka</option>
+            <option value="end">kończą się najszybciej</option>
+            <option value="new">najnowsze</option>
+            <option value="cheap">najtańsze</option>
+          </select>
+        </label>
+      </div>
+      <div class="chips" id="chips" role="group" aria-label="Kategorie"></div>
+      <div class="tags" id="browseList"></div>
+      <button class="more" id="more" hidden>Pokaż więcej</button>
     </section>
   </main>
 </div>
@@ -277,7 +311,7 @@ function priceBig(n) {
   const [zl, gr] = n.toFixed(2).split('.');
   return `<span class="now">${zl}<sup>,${gr}</sup><span class="cur">zł</span></span>`;
 }
-function tagCard(p, removeIdx) {
+function tagCard(p, removeIdx, browse) {
   const left = daysLeft(p);
   const ending = left != null && left >= 0 && left <= 2;
   const over = left != null && left < 0;
@@ -292,7 +326,7 @@ function tagCard(p, removeIdx) {
     <div class="tag-top">${p.img ? `<img class="tag-img" src="${esc(p.img)}" alt="" loading="lazy">` : ''}
       <div><div class="tag-name"><b>${esc(p.brand)}</b> ${esc(p.name)}</div><div class="tag-unit">${esc(p.unit)}</div></div></div>
     <div class="tag-price">${priceBlock}</div>
-    <div class="strip"><span>${stripText}</span>${removeIdx != null ? `<button class="x" data-del="${removeIdx}" title="Przestań obserwować">Usuń</button>` : ''}</div>
+    <div class="strip"><span>${stripText}</span>${removeIdx != null ? `<button class="x" data-del="${removeIdx}" title="Przestań obserwować">Usuń</button>` : ''}${browse ? (browse === 'on' ? '<span class="on">Na liście</span>' : `<button class="add" data-add="${p.id}">Obserwuj</button>`) : ''}</div>
   </article>`;
 }
 
@@ -360,7 +394,35 @@ function renderSearch() {
     </div>`).join('') + (res.length > 100 ? `<div class="none">Pokazuję 100 z ${res.length}. Doprecyzuj, czego szukasz.</div>` : '') : '');
   drop.hidden = false;
 }
-function render() { renderList(); renderSearch(); }
+let browseCat = '', browseSort = 'disc', browseLimit = 24;
+const discount = p => p.oldPrice ? 1 - p.price / p.oldPrice : -1;
+const SORTS = {
+  disc: (a, b) => discount(b) - discount(a),
+  end: (a, b) => (a.to || '9999') < (b.to || '9999') ? -1 : (a.to || '9999') > (b.to || '9999') ? 1 : discount(b) - discount(a),
+  new: (a, b) => (b.from || '') < (a.from || '') ? -1 : (b.from || '') > (a.from || '') ? 1 : discount(b) - discount(a),
+  cheap: (a, b) => (a.price ?? 1e9) - (b.price ?? 1e9),
+};
+function renderBrowse() {
+  const today = todayIso();
+  const live = promos.filter(p => !p.to || p.to >= today);
+  const counts = {};
+  live.forEach(p => { if (p.cat) counts[p.cat] = (counts[p.cat] || 0) + 1; });
+  const cats = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  if (browseCat && !counts[browseCat]) browseCat = '';
+  $('#chips').innerHTML = cats.length ? [['', live.length], ...cats].map(([c, n]) =>
+    `<button class="chip" data-cat="${esc(c)}" aria-pressed="${c === browseCat}">${c ? esc(c) : 'Wszystkie'}<span>${n}</span></button>`).join('') : '';
+  const list = (browseCat ? live.filter(p => p.cat === browseCat) : live).slice().sort(SORTS[browseSort]);
+  const watched = new Set(watchlist.filter(w => w.id).map(w => Number(w.id)));
+  $('#browseCount').textContent = `${list.length.toLocaleString('pl-PL')} ${plural(list.length, 'produkt', 'produkty', 'produktów')}`;
+  $('#browseList').innerHTML = list.slice(0, browseLimit).map(p => tagCard(p, null, watched.has(p.id) ? 'on' : 'add')).join('');
+  $('#more').hidden = list.length <= browseLimit;
+  $('#more').textContent = `Pokaż więcej (${(list.length - browseLimit).toLocaleString('pl-PL')})`;
+}
+$('#sort').onchange = e => { browseSort = e.target.value; browseLimit = 24; renderBrowse(); };
+$('#more').onclick = () => { browseLimit += 48; renderBrowse(); };
+$('#chips').onclick = e => { const c = e.target.closest('[data-cat]'); if (c) { browseCat = c.dataset.cat; browseLimit = 24; renderBrowse(); } };
+
+function render() { renderList(); renderSearch(); renderBrowse(); }
 
 // ---------- key panel ----------
 function showKeyPanel() { $('#keypanel').hidden = false; $('#token').focus(); }

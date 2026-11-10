@@ -48,6 +48,7 @@ export function slim(i) {
     to: i.promotionTo?.slice(0, 10) ?? endFromDescription(i.cmpDescription),
     deal: i.cmpDescription ? i.cmpDescription.slice(0, 220) : null,
     badge: (i.badges || []).map(b => b.name).filter(Boolean).join(', ') || null,
+    cat: (i.category || '').split('-')[0] || null,
     url: SITE + i.navigateUrl,
     img: pic?.medium || null,
   };
